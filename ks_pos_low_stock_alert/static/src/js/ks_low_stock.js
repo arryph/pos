@@ -9,16 +9,36 @@ odoo.define('ks_pos_low_stock_alert.ks_low_stock', function (require) {
     var ks_models = require('point_of_sale.models');
     var ks_screens = require('point_of_sale.screens');
     var ks_utils = require('ks_pos_low_stock_alert.utils');
-
+    
     ks_models.load_fields('product.product', ['type', 'qty_available']);
+    ks_models.load_models([{
+        model:  'stock.quant',
+        label: 'Product quantity',
+        fields: ['product_id','quantity'],
+        domain: function(self){
+            var domain = ['&',['location_id.usage','=','internal'],'|',['company_id','=',self.config.company_id[0]],['company_id','=',false]];
+            if (self.config.stock_location_id) {
+                domain = ['&',['location_id','=',self.config.stock_location_id[0]],'|',['company_id','=',self.config.company_id[0]],['company_id','=',false]]
+            }
+            return domain;
+        },
+        loaded: function(self, quants){
+            _.each(quants, function(quant) {
+                var product_id = quant.product_id[0]
+                if (!self.db.qty_by_product_id) self.db.qty_by_product_id = {};
+                self.db.qty_by_product_id[product_id] = self.db.qty_by_product_id[product_id]|| 0 + quant.quantity;
+                if (self.db.product_by_id[product_id]) {
+                    self.db.product_by_id[product_id].qty_available = self.db.qty_by_product_id[product_id];
+                }
+            });
+        },
+    }], {
+        after: 'product.product'
+    } )
+
     var ks_super_pos = ks_models.PosModel.prototype;
 
     ks_models.PosModel = ks_models.PosModel.extend({
-        initialize: function (session, attributes) {
-            this.ks_load_product_quantity_after_product();
-            ks_super_pos.initialize.call(this, session, attributes);
-        },
-
         ks_get_model_reference: function (ks_model_name) {
             var ks_model_index = this.models.map(function (e) {
                 return e.model;

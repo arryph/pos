@@ -12,3 +12,5 @@ class PosConfig(models.Model):
     display_stock = fields.Boolean(string = 'Display Stock of products in POS', default = True)
     minimum_stock_alert = fields.Integer(string='Minimum Limit to change the stock color for the product', default = 0)
     allow_order_when_product_out_of_stock = fields.Boolean(string = 'Allow Order when Product is Out Of Stock', default = True)
+    stock_location_id = fields.Many2one(string='Stock', comodel_name='stock.location', ondelete='set null')
+    
