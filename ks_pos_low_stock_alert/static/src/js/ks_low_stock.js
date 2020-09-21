@@ -16,9 +16,9 @@ odoo.define('ks_pos_low_stock_alert.ks_low_stock', function (require) {
         label: 'Product quantity',
         fields: ['product_id','quantity'],
         domain: function(self){
-            var domain = ['&',['location_id.usage','=','internal'],'|',['company_id','=',self.config.company_id[0]],['company_id','=',false]];
+            var domain = ['&','&',['product_id.available_in_pos','=',true],['location_id.usage','=','internal'],'|',['company_id','=',self.config.company_id[0]],['company_id','=',false]];
             if (self.config.stock_location_id) {
-                domain = ['&',['location_id','=',self.config.stock_location_id[0]],'|',['company_id','=',self.config.company_id[0]],['company_id','=',false]]
+                domain = ['&','&',['product_id.available_in_pos','=',true],['location_id','=',self.config.stock_location_id[0]],'|',['company_id','=',self.config.company_id[0]],['company_id','=',false]]
             }
             return domain;
         },
