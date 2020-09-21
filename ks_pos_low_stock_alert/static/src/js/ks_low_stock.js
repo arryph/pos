@@ -27,9 +27,12 @@ odoo.define('ks_pos_low_stock_alert.ks_low_stock', function (require) {
                 var product_id = quant.product_id[0]
                 if (!self.db.qty_by_product_id) self.db.qty_by_product_id = {};
                 self.db.qty_by_product_id[product_id] = self.db.qty_by_product_id[product_id]|| 0 + quant.quantity;
-                if (self.db.product_by_id[product_id]) {
-                    self.db.product_by_id[product_id].qty_available = self.db.qty_by_product_id[product_id];
-                }
+                // if (self.db.product_by_id[product_id]) {
+                //     self.db.product_by_id[product_id].qty_available = self.db.qty_by_product_id[product_id];
+                // }
+            });
+            _.each(self.db.product_by_id, product => {
+                product.qty_available = self.db.qty_by_product_id[product.id] || 0;
             });
         },
     }], {
